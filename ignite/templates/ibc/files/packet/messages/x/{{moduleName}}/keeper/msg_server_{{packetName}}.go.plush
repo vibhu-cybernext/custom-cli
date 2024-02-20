@@ -2,15 +2,18 @@ package keeper
 
 import (
 	"context"
+    "fmt"
 
     "<%= ModulePath %>/x/<%= moduleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	"github.com/skuchain/<%= appName %>/x/util"
 )
 
 
 func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg *types.MsgSend<%= packetName.UpperCamel %>) (*types.MsgSend<%= packetName.UpperCamel %>Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+	util.IBLogger(util.INFO, "Send<%= packetName.UpperCamel %>.Entry: "+msg.Address+"\n\nSend<%= packetName.UpperCamel %>.Input:\n"+fmt.Sprint(msg))
+    ctx := sdk.UnwrapSDKContext(goCtx)
 
     // TODO: logic before transmitting the packet
 
@@ -29,8 +32,10 @@ func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg 
         msg.TimeoutTimestamp,
     )
     if err != nil {
+        util.IBLogger(util.ERROR, err.Error()+" <%= moduleName %>Id: "+msg.Address)
         return nil, err
     }
 
+    util.IBLogger(util.INFO, "Send<%= packetName.UpperCamel %>.Exit: "+msg.Address+"\n")
 	return &types.MsgSend<%= packetName.UpperCamel %>Response{}, nil
 }

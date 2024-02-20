@@ -112,6 +112,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		templateRecv := `case *types.%[2]vPacketData_%[3]vPacket:
 	packetAck, err := im.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
+		util.IBLogger(util.ERROR, err.Error()+" %[4]vId: "+packet.%[3]vPacket.Address)
 		ack = channeltypes.NewErrorAcknowledgement(err)
 	} else {
 		// Encode packet acknowledgment
@@ -134,6 +135,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 			PlaceholderIBCPacketModuleRecv,
 			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
+			opts.ModuleName,
 		)
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv)
 
@@ -141,6 +143,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		templateAck := `case *types.%[2]vPacketData_%[3]vPacket:
 	err := im.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
 	if err != nil {
+		util.IBLogger(util.ERROR, err.Error()+" %[4]vId: "+packet.%[3]vPacket.Address)
 		return err
 	}
 	eventType = types.EventType%[3]vPacket
@@ -150,6 +153,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 			PlaceholderIBCPacketModuleAck,
 			xstrings.Title(opts.ModuleName),
 			opts.PacketName.UpperCamel,
+			opts.ModuleName,
 		)
 		content = replacer.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck)
 

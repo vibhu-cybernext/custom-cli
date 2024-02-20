@@ -2,6 +2,7 @@ package keeper
 
 import (
     "errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -9,6 +10,7 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	"github.com/skuchain/<%= appName %>/x/util"
 )
 
 // Transmit<%= packetName.UpperCamel %>Packet transmits the packet over IBC with the specified source port and source channel
@@ -20,6 +22,7 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
 	timeoutHeight clienttypes.Height,
     timeoutTimestamp uint64,
 ) (uint64, error) {
+	util.IBLogger(util.INFO, "Transmit<%= packetName.UpperCamel %>Packet.Entry: "+packetData.Address+"\n\nTransmit<%= packetName.UpperCamel %>Packet.Input:\n"+fmt.Sprint(packetData))
     channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
     if !ok {
         return 0, sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
@@ -30,11 +33,13 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
         return 0, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, "cannot marshal the packet: %w", err)
     }
 
+	util.IBLogger(util.INFO, "Transmit<%= packetName.UpperCamel %>Packet.Exit: "+packetData.Address+"\n")
     return k.channelKeeper.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, packetBytes)
 }
 
 // OnRecv<%= packetName.UpperCamel %>Packet processes packet reception
 func (k Keeper) OnRecv<%= packetName.UpperCamel %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= packetName.UpperCamel %>PacketData) (packetAck types.<%= packetName.UpperCamel %>PacketAck, err error) {
+	util.IBLogger(util.INFO, "OnRecv<%= packetName.UpperCamel %>Packet.Entry: "+data.Address+"\n\nOnRecv<%= packetName.UpperCamel %>Packet.Input:\n"+fmt.Sprint(data))
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
@@ -42,12 +47,14 @@ func (k Keeper) OnRecv<%= packetName.UpperCamel %>Packet(ctx sdk.Context, packet
 
 	// TODO: packet reception logic
 
+	util.IBLogger(util.INFO, "OnRecv<%= packetName.UpperCamel %>Packet.Exit: "+data.Address+"\n")
 	return packetAck, nil
 }
 
 // OnAcknowledgement<%= packetName.UpperCamel %>Packet responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= packetName.UpperCamel %>PacketData, ack channeltypes.Acknowledgement) error {
+	util.IBLogger(util.INFO, "OnAcknowledgement<%= packetName.UpperCamel %>Packet.Entry: "+data.Address+"\n\nOnAcknowledgement<%= packetName.UpperCamel %>Packet.Input:\n"+fmt.Sprint(data))
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -65,7 +72,8 @@ func (k Keeper) OnAcknowledgement<%= packetName.UpperCamel %>Packet(ctx sdk.Cont
         }
 
 	    // TODO: successful acknowledgement logic
-
+		
+		util.IBLogger(util.INFO, "OnAcknowledgement<%= packetName.UpperCamel %>Packet.Exit: "+data.Address+"\n")
 		return nil
 	default:
     	// The counter-party module doesn't implement the correct acknowledgment format

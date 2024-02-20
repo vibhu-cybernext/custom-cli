@@ -2,17 +2,24 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/skuchain/<%= AppName %>/x/util"
 )
 
 
 func (k msgServer) <%= MsgName.UpperCamel %>(goCtx context.Context,  msg *types.Msg<%= MsgName.UpperCamel %>) (*types.Msg<%= MsgName.UpperCamel %>Response, error) {
+	util.IBLogger(util.INFO, "<%= MsgName.UpperCamel %>.Entry: "+msg.Address+"\n\n<%= MsgName.UpperCamel %>.Input:\n"+fmt.Sprint(msg))
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // TODO: Handling the message
+	// TODO: Log errors during error handling for each function/utility called in msgServer function, func <%= MsgName.UpperCamel %>()
+	// Usage example:
+	// util.IBLogger(util.ERROR, err.Error()+" <%= ModuleName %>Id: "+msg.Address)
     _ = ctx
 
+	util.IBLogger(util.INFO, "<%= MsgName.UpperCamel %>.Exit: "+msg.Address+"\n")
 	return &types.Msg<%= MsgName.UpperCamel %>Response{}, nil
 }
