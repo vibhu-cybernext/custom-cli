@@ -1,0 +1,11 @@
+project_name: ignite
+builds:
+  - main: ./ignite/cmd/ignite
+    ldflags:
+      - -s -w -X github.com/ignite/cli/ignite/version.Version={{.Tag}}
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
